@@ -29,6 +29,10 @@ public class Course {
     @Column(length = 50)
     private String instructor;
 
+    public Course(String name, String instructor) {
+        this.name = name;
+        this.instructor = instructor;
+    }
     @ToString.Exclude
     @ManyToMany(cascade = {CascadeType.DETACH,CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST},
             fetch = FetchType.EAGER, mappedBy = "courses")
@@ -44,7 +48,7 @@ public class Course {
         else
             return true;
     }
-    
+
     @Override
     public int hashCode() {
         return Objects.hash(id);

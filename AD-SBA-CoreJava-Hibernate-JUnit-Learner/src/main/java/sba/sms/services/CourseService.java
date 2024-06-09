@@ -20,36 +20,35 @@ import java.util.List;
  */
 public class CourseService implements CourseI{
 
+
     @Override
     public void createCourse(Course course) {
-        SessionFactory factory = new Configuration().configure().buildSessionFactory();
-        Session session = factory.openSession();
+
+        Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
-        session.persist(course);
+        Course c = new Course(course.getName(), course.getInstructor());
+        session.persist(c);
         tx.commit();
         session.close();
-        factory.close();
     }
 
     @Override
     public Course getCourseById(int courseId) {
-        SessionFactory factory = new Configuration().configure().buildSessionFactory();
-        Session session = factory.openSession();
+        Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
-       Course course = (Course) session.get(Course.class, courseId);
-        return course;
+        Course c = (Course) session.get(Course.class, courseId);
+        tx.commit();
+        session.close();
+        return c;
     }
 
     @Override
     public List<Course> getAllCourses() {
-        SessionFactory factory = new Configuration().configure().buildSessionFactory();
-        Session session = factory.openSession();
+        Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
-
         List<Course> courses = session.createQuery("from Course").list();
         tx.commit();
         session.close();
-        factory.close();
         return courses;
     }
 }

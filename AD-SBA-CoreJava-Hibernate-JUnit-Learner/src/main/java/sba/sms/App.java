@@ -48,6 +48,7 @@ public class App {
                 String email = input.next();
                 System.out.printf("Enter %s's password: ", email.substring(0, email.indexOf("@")));
                 String password = input.next();
+//                System.out.print(studentService.validateStudent(email, password));
                 if (studentService.validateStudent(email, password)) {
                     printStudentCourses(email);
                     System.out.printf("select # from menu: %n1.Register %s to class: %n2.Logout%n", studentService.getStudentByEmail(email).getName());

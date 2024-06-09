@@ -15,6 +15,7 @@ import sba.sms.models.Course;
 import sba.sms.models.Student;
 import sba.sms.utils.HibernateUtil;
 
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,54 +29,40 @@ import java.util.List;
 public class StudentService implements StudentI {
 
     @Override
-    public void createStudent(Student student) {
-        SessionFactory factory = new Configuration().configure().buildSessionFactory();
-        Session session = factory.openSession();
-        Transaction tx = session.beginTransaction();
+    public List<Student> getAllStudents() {
+        return null;
+    }
 
+    @Override
+    public void createStudent(Student student) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = session.beginTransaction();
         session.persist(student);
         tx.commit();
         session.close();
-        factory.close();
+
     }
 
     @Override
     public Student getStudentByEmail(String email) {
-        SessionFactory factory = new Configuration().configure().buildSessionFactory();
-        Session session = factory.openSession();
+        Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
-        Student student = (Student) session.get(Student.class, email);
-        //System.out.println("Student found: " + student.toString());
+        Student s = session.get(Student.class, email);
+//        String sql = "FROM Student s WHERE email = :email";
+//        TypedQuery<Student> query = session.createQuery(sql, Student.class);
+//        query.setParameter("email", email);
+//        Student s = (Student) query.getSingleResult();
         tx.commit();
         session.close();
-        factory.close();
-        return student;
-    }
-
-    @Override
-    public List<Student> getAllStudents() {
-        SessionFactory factory = new Configuration().configure().buildSessionFactory();
-        Session session = factory.openSession();
-        Transaction tx = session.beginTransaction();
-        String sql = "SELECT * FROM student s";
-        TypedQuery<Student> query = session.createQuery(sql, Student.class);
-        List<Student> students = query.getResultList();
-        for(Student s : students){
-            System.out.println(s.toString());
-        }
-        tx.commit();
-        session.close();
-        factory.close();
-        return students;
+        return s;
     }
 
     @Override
     public boolean validateStudent(String email, String password) {
-        SessionFactory factory = new Configuration().configure().buildSessionFactory();
-        Session session = factory.openSession();
+        Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
-        Student student = (Student) session.get(Student.class, email);
-        if(student.getPassword().equals(password) || student.getEmail().equals(email))
+        Student student = getStudentByEmail(email);
+        if(student.getPassword().equals(password) && student.getEmail().equals(email))
             return true;
         else
             return false;
@@ -83,24 +70,26 @@ public class StudentService implements StudentI {
 
     @Override
     public void registerStudentToCourse(String email, int courseId) {
-        SessionFactory factory = new Configuration().configure().buildSessionFactory();
-        Session session = factory.openSession();
+        Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
-        Student student = (Student) session.get(Student.class, email);
-        Course course = (Course) session.get(Course.class, courseId);
+        Student student = getStudentByEmail(email);
+        Course course = session.get(Course.class, courseId);
         student.getCourses().add(course);
+        session.merge(student);
+        tx.commit();
+        session.close();
+
     }
 
-
     @Override
-    public List<Course> getStudentCourses(String email){
-        SessionFactory factory = new Configuration().configure().buildSessionFactory();
-        Session session = factory.openSession();
+    public List<Course> getStudentCourses(String email) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
         List<Course> courses = new ArrayList<>();
-        Student student = (Student) session.get(Student.class, email);
-        for(Course c : student.getCourses()){
-            courses.add(c);
+        //String sql = "FROM Course c WHERE c.email = :email";
+        Student student = getStudentByEmail(email);
+        for(Course course : student.getCourses()) {
+            courses.add(course);
         }
         return courses;
     }

@@ -31,6 +31,11 @@ public class Student {
     @Column(name="password", length=50)
     private String password;
 
+    public Student(String email, String name, String password) {
+        this.email = email;
+        this.name = name;
+        this.password = password;
+    }
     @ToString.Exclude
     @ManyToMany(cascade={CascadeType.DETACH, CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST},
             fetch = FetchType.EAGER)
