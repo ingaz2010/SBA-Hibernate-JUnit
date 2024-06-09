@@ -30,7 +30,13 @@ public class StudentService implements StudentI {
 
     @Override
     public List<Student> getAllStudents() {
-        return null;
+       Session session = HibernateUtil.getSessionFactory().openSession();
+       Transaction tx = session.beginTransaction();
+       List<Student> students = session.createQuery("from Student").list();
+       tx.commit();
+       session.close();
+       return students;
+
     }
 
     @Override
@@ -48,10 +54,6 @@ public class StudentService implements StudentI {
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
         Student s = session.get(Student.class, email);
-//        String sql = "FROM Student s WHERE email = :email";
-//        TypedQuery<Student> query = session.createQuery(sql, Student.class);
-//        query.setParameter("email", email);
-//        Student s = (Student) query.getSingleResult();
         tx.commit();
         session.close();
         return s;
@@ -61,7 +63,7 @@ public class StudentService implements StudentI {
     public boolean validateStudent(String email, String password) {
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
-        Student student = getStudentByEmail(email);
+        Student student = getStudentByEmail(email); //finds student record using getStudentByEmail and then compares password
         if(student.getPassword().equals(password) && student.getEmail().equals(email))
             return true;
         else
@@ -72,10 +74,10 @@ public class StudentService implements StudentI {
     public void registerStudentToCourse(String email, int courseId) {
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
-        Student student = getStudentByEmail(email);
-        Course course = session.get(Course.class, courseId);
-        student.getCourses().add(course);
-        session.merge(student);
+        Student student = getStudentByEmail(email); //finds student by email
+        Course course = session.get(Course.class, courseId); //finds course using id
+        student.getCourses().add(course);     //add course to the list of student's courses
+        session.merge(student);      //update student
         tx.commit();
         session.close();
 
@@ -86,9 +88,8 @@ public class StudentService implements StudentI {
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = session.beginTransaction();
         List<Course> courses = new ArrayList<>();
-        //String sql = "FROM Course c WHERE c.email = :email";
-        Student student = getStudentByEmail(email);
-        for(Course course : student.getCourses()) {
+        Student student = getStudentByEmail(email); //finds student by email
+        for(Course course : student.getCourses()) { //extracts each course on student's record and copies to new list
             courses.add(course);
         }
         return courses;

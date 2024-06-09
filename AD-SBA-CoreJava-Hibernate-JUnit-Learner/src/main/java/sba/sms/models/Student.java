@@ -24,12 +24,13 @@ import java.util.Set;
 public class Student {
 
     @Id
-    @Column(length = 50)
+    @Column(length = 50, unique = true, nullable = false)
     private String email;
-    @Column(name="name", length=50)
+    @Column(length=50, nullable = false)
     private String name;
-    @Column(name="password", length=50)
+    @Column(length=50, nullable = false)
     private String password;
+
 
     public Student(String email, String name, String password) {
         this.email = email;

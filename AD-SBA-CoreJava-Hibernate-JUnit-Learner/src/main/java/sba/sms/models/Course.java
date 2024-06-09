@@ -24,9 +24,9 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(length = 50)
+    @Column(length = 50, nullable = false)
     private String name;
-    @Column(length = 50)
+    @Column(length = 50, nullable = false)
     private String instructor;
 
     public Course(String name, String instructor) {
